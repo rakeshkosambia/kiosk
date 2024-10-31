@@ -1,0 +1,97 @@
+package com.midz.serial;
+
+import com.midz.util.Logging;
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import com.fazecast.jSerialComm.SerialPort;
+
+public class GetDataServlet extends jakarta.servlet.http.HttpServlet {
+	
+	private static final long serialVersionUID = 1L;
+    private SerialPort serialPort;
+    private Thread readThread;
+    private volatile boolean reading = false;
+    private String arduinoData = "";
+    
+    public GetDataServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+    
+    public void init() {
+        // Set up the serial port
+ 	   serialPort = SerialPort.getCommPort(com.midz.util.ConstantParameters.ARDUINO_PORT_NAME);
+ 	   Logging.portInfo(serialPort);
+ 	   
+	   serialPort.setComPortParameters(com.midz.util.ConstantParameters.ARDUINO_BAUD_RATE, 
+				   8, 
+				   SerialPort.ONE_STOP_BIT, 
+				   SerialPort.NO_PARITY);
+	   serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING,1000,0);
+	   serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
+	   serialPort.openPort();
+	   //Checking the port
+	   if (serialPort.isOpen()) {
+		   Logging.log("Serial port opened successfully.");
+	   } else {
+		   Logging.log("Serial port unsuccessful to open.");
+	       return;
+	   }
+       // Read data from the port
+       reading = true;
+       readThread = new Thread(new Runnable() {
+	       public void run() {
+		      while (reading) {
+		         if (serialPort.bytesAvailable() > 0) {  
+		            try {
+		            	   byte[] readBuffer = new byte[serialPort.bytesAvailable()];
+		            	   int numReadBytes = serialPort.readBytes(readBuffer, readBuffer.length);
+		            	   if (numReadBytes > 0) {
+		            		   //arduinoData += new String(readBuffer, 0, numReadBytes);
+		                       arduinoData += new String(readBuffer, "UTF-8");
+		                       Logging.log("->"+arduinoData);
+		                   }
+		            } catch (IOException e) {
+		                    e.printStackTrace();
+		            } //end of catch
+		         } //end of if   
+		      } //end of while
+	       } // end of run()
+       }); // end of readThread()
+       readThread.start();
+    } // end of init()
+    
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Display the data on the JSP page
+        request.setAttribute("arduinoData", arduinoData);
+        request.getRequestDispatcher("paybill.jsp").forward(request, response);
+    }
+    
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Start or stop reading data based on the form input
+        String arduinoAction = request.getParameter("arduinoAction");
+        if (arduinoAction != null) {
+            if (arduinoAction.equals("start")) {
+                reading = true;
+            } else if (arduinoAction.equals("stop")) {
+                reading = false;
+            }
+        }
+        response.sendRedirect(request.getContextPath());
+        //response.getWriter().append("Served at: ").append(request.getContextPath());
+    }
+    
+    public void destroy() {
+        // Clean up resources
+        reading = false;
+        try {
+            readThread.join();
+            serialPort.closePort();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    } //end of destroy
+} //end of GetDataServlet

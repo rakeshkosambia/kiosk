@@ -1,0 +1,173 @@
+            $(document).ready(function() {
+                setInterval(function() {
+                    var userid = $("#userid").val();
+                    var name = $("#name").val();
+                    var action = $("#action").val();
+                    var timestamp = new Date().getTime();
+                    console.log("userid = " + userid + ", name = " + name + ", action = " + action);
+                    $.get("BillAcceptorServlet", {
+                        userid: userid,
+                        name: name,
+                        action: action,
+                        timestamp: timestamp
+                    }, function(data) {
+                        $("#billdata").html(data);
+                    });
+                }, 10000);
+            });
+-------------------------------------------------------
+
+package com.midz.serial;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Date;
+
+import com.fazecast.jSerialComm.SerialPort;
+import com.midz.util.Logging;
+
+//import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
+//import javax.servlet.http.HttpServlet;
+//import javax.servlet.http.HttpServletRequest;
+//import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+public class SerialDataServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private SerialPort serialPort;
+    private String billdata = "";
+    private volatile boolean monitoring = false;
+    
+    private volatile boolean portOpen = false;
+    private volatile boolean toForward = false;
+    private String newResourceURL = "";
+    private String page = "";
+   
+    public SerialDataServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+    try {
+        Logging.log("doGet() started");
+           response.setContentType("text/html; charset=UTF-8");
+           page=request.getContextPath()+"/paybill.jsp";
+           
+           StringWriter stringWriter = new StringWriter();
+           PrintWriter printWriter = new PrintWriter(stringWriter);
+           stringWriter.getBuffer().setLength(0);
+                // required values for paybill.jsp
+                // ------- userid -------
+                String userid = request.getParameter("userid");
+                if (userid != null) {
+                    printWriter.write(userid);
+                    userid = stringWriter.toString();
+                    stringWriter.getBuffer().setLength(0);
+                }
+                // ------- name -------
+                String name = request.getParameter("name");
+                if (name != null) {
+                    printWriter.write(name);
+                    name = stringWriter.toString();
+                    stringWriter.getBuffer().setLength(0);
+                }
+                // ------- action -------
+                String action = request.getParameter("action");
+                if (action != null) {
+                    printWriter.write(action);
+                    action = stringWriter.toString();
+                    stringWriter.getBuffer().setLength(0);
+                    if(action.equalsIgnoreCase("start")) {
+                        monitoring = true;
+                    }
+                    if(action.equalsIgnoreCase("stop")) {
+                        monitoring = false;
+                    }
+                }
+                Logging.log("ACTION clicked :"+action+": monitoring :"+monitoring);
+                
+                // ------- passing parameters from url -------
+                newResourceURL=page+"?"+"userid="+userid+"&name="+name+"&action="+action;
+                Logging.log("1.URL from servlet:"+newResourceURL);
+                
+            //################# DATA needed in billdata variable #################
+            Date dateObj = new Date();
+            billdata = dateObj.toString();
+            Logging.log("Setting data object :"+billdata.toString());
+
+            /*
+            while(startreading) {
+                billdata = dateObj.toString();
+                Logging.log("Setting data object :"+billdata.toString());
+                if(stopreading) {
+                    Logging.log("stopreading = true, return back billdata to jsp");
+                    break;
+                }
+            }//while
+            */
+            
+            // ------- data -------
+            if (billdata != null) {
+                printWriter.write(billdata);
+                billdata = stringWriter.toString();
+                stringWriter.getBuffer().setLength(0);
+            }
+            //##########################################################
+            // ------- url ------- 
+            newResourceURL=newResourceURL+"&billdata="+billdata;
+            Logging.log("2.URL from servlet:"+newResourceURL);
+            //##########################################################
+            
+            // ------- url redirect -------  
+            Logging.log("doGet() exit"); 
+            response.sendRedirect(newResourceURL);
+            /**************************************
+            request.setAttribute("userid", userid);
+            request.setAttribute("name", name);
+            request.setAttribute("data", data);
+            request.setAttribute("data", data);
+            request.getRequestDispatcher("+page+").forward(request, response);
+            **************************************/
+            
+    } //end of try 
+        catch(Exception ex) {
+            Logging.log("Exception caught :"+ex.getClass().toString()+" : "+ex.toString());
+            ex.printStackTrace();
+        }
+        finally {
+            //if (portOpen)
+            //  serialPort.closePort();
+        }   
+    } //doGet
+
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Logging.log("doPost() started");
+        /*
+        String action = request.getParameter("action");
+        if (action != null) {
+            if (action.equals("start")) {
+                request.setAttribute("action", "start");
+                startreading = true;
+            } else if (action.equals("stop")) {
+                request.setAttribute("action", "stop");
+                stopreading = true;
+            }
+        }
+        */
+        Logging.log("doPost() exit");
+        doGet(request, response);
+        
+        //Logging.log(request.getContextPath() + "/SerialDataServlet");
+        //response.sendRedirect(request.getContextPath() + "/SerialDataServlet");
+        //response.sendRedirect(request.getContextPath() + "/paybill.jsp");
+    }
+
+}//SerialDataServlet
