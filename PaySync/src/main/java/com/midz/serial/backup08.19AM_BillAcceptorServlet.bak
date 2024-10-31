@@ -1,0 +1,366 @@
+package com.midz.serial;
+
+import java.io.IOException;
+import java.util.Hashtable;
+
+import com.fazecast.jSerialComm.SerialPort;
+import com.midz.util.Logging;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+public class BillAcceptorServlet extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
+    private SerialReader task;
+    private SerialPort serialPort;
+
+    //@Override
+    //public void init() throws ServletException {
+	//Logging.log("-->>>>>>>> first time called ---->>>>");
+	// super.init();
+    //}
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	    throws ServletException, IOException {
+	response.setBufferSize(64 * 1024);
+
+	String userid = request.getParameter("userid");
+	String paidamount = request.getParameter("paidamount");
+	String payOffsetPendId = request.getParameter("payOffsetPendId");
+
+	String action = request.getParameter("action");
+	String name = request.getParameter("name");
+	String timestamp = request.getParameter("timestamp");
+	String jsStep = request.getParameter("jsStep");
+
+	String resourceURL = "";
+	String techmessage = "";
+	String billRefresh = "";
+	String billTotal = "";
+
+	HttpSession session = request.getSession();
+	String jspSessionID = request.getParameter("sessionID");
+	String currentSessionID = session.getId();
+	boolean directDBPage = false;
+
+	try {
+	    Logging.log("=>------------------->NEW REQUEST----------------->");
+	    Logging.log("STEP " + jsStep + ". -> doGet()->begin : action->" + action + " :userid->" + userid
+		    + ":paidamount:" + paidamount + ":payOffsetPendId:" + payOffsetPendId);
+	    directDBPage = false;
+
+	    if (action != null) {
+		session.setAttribute("sessionaction", action);
+	    } else {
+		session.setAttribute("sessionaction", "");
+	    }
+
+	    if (action == null) {
+		// response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing 'action'
+		// parameter");
+		// return;
+		techmessage = "start_1"; // "Missing 'action' parameter";
+
+	    }
+
+	    if (currentSessionID.equals(jspSessionID)) {
+		if (task != null && task.isRunning() && action.equals("start")) {
+		    techmessage = "start_2"; // "KIOSK is already ready to accept money";
+		    task.requestKill();
+		    Logging.log("==>2.TASK RUNNING FOR ANOTHER USER SO KILLED ->action->" + action + " :techmessage:"
+			    + techmessage);
+		}
+	    } else {
+		// ************************* START *************************
+		if (action.equals("start")) {
+		    if (task != null && task.isRunning()) {
+			// response.sendError(HttpServletResponse.SC_CONFLICT, "Computation already
+			// running");
+			// return;
+			techmessage = "start_2"; // "KIOSK is already ready to accept money";
+			Logging.log(
+				"==>2.TASK RUNNING SO NO ACTION ->action->" + action + " :techmessage:" + techmessage);
+		    } else {
+			Logging.log("==>2.doGet()->action->" + action + " :SerialPort->Opening the port");
+			serialPort = SerialPort.getCommPort(com.midz.util.ConstantParameters.ARDUINO_PORT_NAME);
+			Logging.portInfo(serialPort);
+			serialPort.setComPortParameters(com.midz.util.ConstantParameters.ARDUINO_BAUD_RATE, 8,
+				SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
+			serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 1000, 0);
+			serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
+			serialPort.openPort();
+			techmessage = "start_2"; // "KIOSK is already ready to accept money";
+			Logging.log("==>2.TASK NOT RUNNING SO STARTED TASK, OPENING PORT->action->" + action
+				+ " :techmessage:" + techmessage + ":serialPort.isOpen():" + serialPort.isOpen());
+		    }
+		    if (serialPort.isOpen()) {
+			Logging.log("==>3.ENTER.Thread.doGet()->action->" + action + " :techmessage:" + techmessage
+				+ ":serialPort.isOpen():" + serialPort.isOpen());
+			task = new SerialReader(serialPort, session, techmessage);
+			Thread thread = new Thread(task);
+			thread.start();
+			techmessage = "start_3"; // "KIOSK is ready to accept money";
+			Logging.log("==>3.EXIST.Thread.doGet()->action->" + action + " :techmessage:" + techmessage
+				+ ":serialPort.isOpen():" + serialPort.isOpen());
+			// response.getWriter().print("Computation started");
+		    } else {
+			// response.sendError(HttpServletResponse.SC_CONFLICT, "Bill acceptor port not
+			// open");
+			// return;
+			techmessage = "start_4"; // "KIOSK not available";
+			Logging.log("==>4.PORT NOT ABLE TO OPEN->action->" + action + " :techmessage:" + techmessage
+				+ ":serialPort.isOpen():" + serialPort.isOpen());
+		    }
+		} else if (action.equals("stop")) {
+		    session.setAttribute("sessionaction", action);
+		    if (task == null || !task.isRunning()) {
+			// response.sendError(HttpServletResponse.SC_CONFLICT, "Computation not
+			// running");
+			// return;
+			techmessage = "stop_1"; // "KIOSK is not ready/accepting";
+			Logging.log(
+				"===>6.STOP but no task running->action->" + action + " :techmessage:" + techmessage);
+		    }
+		    if ((task != null) && (task.isRunning())) {
+			Logging.log("===>6.STOP PERFORMED->action->" + action + " :techmessage:" + techmessage);
+			task.requestStop();
+			directDBPage = true;
+			if (task.getBillResult() != null) {
+			    // intBillTotal = (session.getAttribute("intBillTotal") != null) ?
+			    // Integer.parseInt((String) session.getAttribute("intBillTotal")) : 0;
+			    // intBillTotal += Integer.parseInt(billdata);
+			    // session.setAttribute("intBillTotal", intBillTotal);
+			    billRefresh = (task.getBillResult().get("billRefresh") != null)
+				    ? task.getBillResult().get("billRefresh").toString()
+				    : "0";
+			    billTotal = (task.getBillResult().get("billTotal") != null)
+				    ? task.getBillResult().get("billTotal").toString()
+				    : "0";
+			    techmessage = "success_" + billRefresh;
+			    Logging.log("==>3.TASK GOT:billRefresh->" + billRefresh + ":billTotal->" + billTotal
+				    + ":techmessage->" + techmessage);
+
+			    // response.getWriter().print("Computation stopped. Result: " + intBillTotal);
+			    if (serialPort.isOpen()) {
+				serialPort.closePort();
+				Logging.log("==>6.CLOSE PORT IF FOUND OPEN.serial port is open so closing");
+			    }
+
+			    // REDIRECT FOR DB PAYMENT
+//			    response.setContentType("text/html; charset=UTF-8");
+//			    resourceURL = request.getContextPath() + "/paybillsubmit.jsp";
+//			    resourceURL = resourceURL + "?" + "userid=" + userid + "&name=" + name + "&action="
+//				    + action;
+//			    resourceURL = resourceURL + "&billTotal=" + billTotal + "&techmessage=" + techmessage
+//				    + "&paidamount=" + paidamount + "&payOffsetPendId=" + payOffsetPendId;
+//
+//			    Logging.log("URL FOR DB PAYMENT: action->" + action + ": url->" + resourceURL);
+//			    session.setAttribute("techmessage", techmessage);
+//			    response.sendRedirect(resourceURL);
+			}
+		    }
+		} else {
+		    session.setAttribute("sessionaction", action);
+		    Logging.log("==>6.doGet()->action->" + action
+			    + " :action->Action is not valid should be either start or stop");
+		    // response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid 'flag'
+		    // parameter value");
+		    techmessage = "fail"; // "Action is not valid should be either start or stop";
+		}
+		// ************************* END *************************
+	    } // currentSessionID.equals(jspSessionID)
+	    if (action == null) {
+		action = session.getAttribute("sessionaction").toString();
+	    }
+	    if (directDBPage) {
+		// REDIRECT FOR DB PAYMENT
+		response.setContentType("text/html; charset=UTF-8");
+		resourceURL = request.getContextPath() + "/paybill_billacceptor.jsp"; // instead of paybillsubmit.jsp
+		resourceURL = resourceURL + "?" + "userid=" + userid + "&name=" + name + "&action=" + action;
+		resourceURL = resourceURL + "&billTotal=" + billTotal + "&techmessage=" + techmessage + "&paidamount="
+			+ paidamount + "&payOffsetPendId=" + payOffsetPendId + "&isDBSubmit=Y";
+
+		Logging.log("URL FOR DB PAYMENT: action->" + action + ": url->" + resourceURL);
+		session.setAttribute("techmessage", techmessage);
+		session.setAttribute("isDBSubmit", "Y");
+		session.setAttribute("payOffsetPendId", payOffsetPendId);
+		session.setAttribute("paidamount", paidamount);
+		Logging.log("SESSION SERVLET: techmessage->" + session.getAttribute("techmessage").toString());
+		Logging.log("############################################################");
+		response.sendRedirect(resourceURL);
+	    } else {
+		// REDIRECT TO JSP PAGE
+		response.setContentType("text/html; charset=UTF-8");
+		resourceURL = request.getContextPath() + "/paybill_billacceptor.jsp";
+		resourceURL = resourceURL + "?" + "userid=" + userid + "&name=" + name + "&action=" + action;
+		resourceURL = resourceURL + "&billTotal=" + billTotal + "&techmessage=" + techmessage + "&paidamount="
+			+ paidamount + "&payOffsetPendId=" + payOffsetPendId + "&isDBSubmit=N";
+
+		Logging.log("URL BACK TO SAME JSP: action->" + action + ": url->" + resourceURL);
+		session.setAttribute("techmessage", techmessage);
+		session.setAttribute("isDBSubmit", "Y");
+		session.setAttribute("payOffsetPendId", payOffsetPendId);
+		session.setAttribute("paidamount", paidamount);
+		Logging.log("SESSION SERVLET: techmessage->" + session.getAttribute("techmessage").toString());
+		Logging.log("############################################################");
+		response.sendRedirect(resourceURL);
+	    }
+	}
+	catch (Exception ex) {
+	    Logging.log("Exception caught in doGET: " + ex.toString());
+	    ex.printStackTrace();
+	}
+
+
+    } // toGet()
+
+    private static class SerialReader implements Runnable {
+	private boolean stopRequested = false;
+	private boolean running = false;
+	private String billRefresh;
+	private SerialPort serialPort;
+	private int billTotal = 0;
+	HttpSession session;
+	private Hashtable hashValue = new Hashtable();
+	private int loop = 0;
+	private String techmessage = "";
+
+	public SerialReader(SerialPort serialPort, HttpSession session, String techmessage) {
+	    this.serialPort = serialPort;
+	    this.session = session;
+	    this.techmessage = techmessage;
+	    Logging.log("===>3.1.SerialReader : constructor->begin");
+	}
+
+	@Override
+	public void run() {
+	    running = true;
+	    billRefresh = "";
+	    billTotal = 0;
+	    loop = 0;
+
+	    if (session.getAttribute("billRefresh") != null) {
+		session.setAttribute("billRefresh", "");
+	    }
+	    if (session.getAttribute("billTotal") != null) {
+		session.setAttribute("billTotal", "");
+	    }
+
+	    Logging.log(
+		    "***************3.2->BEGIN run()->billRefresh->" + billRefresh + ":billTotal->" + billTotal);
+	    while (!stopRequested) {
+		try {
+		    // Thread.sleep(1000);
+		    if (serialPort.bytesAvailable() > 0) {
+			byte[] readBuffer = new byte[serialPort.bytesAvailable()];
+			int numReadBytes = serialPort.readBytes(readBuffer, readBuffer.length);
+			if (numReadBytes > 0) {
+			    String byteString = new String(readBuffer, 0, numReadBytes);
+			    billRefresh = ((byteString.replaceAll("\\r\\n", "")).replaceAll("\\D", "")).trim();
+			    billRefresh = billRefresh.trim();
+			    // Thread.sleep(1000);
+			    if ((billRefresh.length() > 1) && (Integer.parseInt(billRefresh) > 1)) {
+				loop = loop + 1;
+				billTotal = billTotal + Integer.parseInt(billRefresh);
+
+				session.setAttribute("billRefresh", billRefresh);
+				session.setAttribute("billTotal", billTotal);
+
+				hashValue.put("billRefresh", billRefresh);
+				hashValue.put("billTotal", billTotal);
+
+				Logging.log(loop + ".a==>inserted->" + billRefresh + "(session:"
+					+ session.getAttribute("billRefresh") + ")");
+				Logging.log("     .b===>total->" + billTotal + "(session:"
+					+ session.getAttribute("billTotal") + ")");
+				Logging.log("------------------------------------------");
+			    } else if (billRefresh.length() == 1) {
+				Logging.log("==>3.3.WRONG READING." + loop + ":inserted->" + billRefresh);
+			    }
+			}
+			// if (numReadBytes > 0) {
+			// String byteString = new String(readBuffer);
+			// billResult = byteString.replaceAll("[^0-9]", "");
+			// Logging.log(" 6.3.numReadBytes->" + numReadBytes + "->billResult->" +
+			// billResult + "<-");
+			// StringBuilder digitsBuilder = new StringBuilder();
+			// for (byte b : readBuffer) {
+			// char c = (char) b;
+			// if (Character.isDigit(c))
+			// digitsBuilder.append(c);
+			// }
+			// Thread.sleep(100);
+			// if (!digitsBuilder.isEmpty()) {
+			// billResult = digitsBuilder.toString();
+			// if (!billResult.isEmpty())
+			// Logging.log("6.1.billResult->" + billResult + "<-");
+			// }
+			// // other try
+			// String tempResult = new String(readBuffer, StandardCharsets.UTF_8);
+			// billResult = tempResult.replaceAll("[^0-9]", "");
+			// Logging.log("6.1.numReadBytes->" + numReadBytes + "->billResult->"
+			// +billResult + "<-");
+			// }
+		    } // bytesAvailable
+		} catch (Exception ee) {
+		    Logging.log("3.5.b.EXCEPTION :" + ee.toString());
+		    stopRequested = true;
+		    running = false;
+		    techmessage = "fail";
+
+		    Logging.log("3.5.b.EXCEPTION :stopRequested->" + stopRequested + ":running->" + running
+			    + ":billTotal->" + billTotal);
+		} /*
+		   * finally { stopRequested = true; if (serialPort.isOpen()) {
+		   * serialPort.closePort();
+		   * Logging.log("FINALLY.a.serial port is open so closing"); } }
+		   */
+	    } // while
+	    running = false;
+	    if (serialPort.isOpen()) {
+		serialPort.closePort();
+		Logging.log("3.6.b.serial port is open so closing");
+	    }
+	    Logging.log(
+		    "3.7.c.EXIT run() ------>stopRequested->" + stopRequested + ":running->" + running + ":billTotal->"
+			    + billTotal);
+	} // run()
+
+	public Hashtable getBillResult() {
+	    return hashValue;
+	}
+
+	public boolean isRunning() {
+	    return running;
+	}
+
+	public void requestStop() {
+	    stopRequested = true;
+	}
+
+	public void requestKill() {
+	    Logging.log("c.requestKill.called");
+	    stopRequested = true;
+	    running = false;
+	    if (session.getAttribute("billRefresh") != null) {
+		session.setAttribute("billRefresh", "");
+	    }
+	    if (session.getAttribute("billTotal") != null) {
+		session.setAttribute("billTotal", "");
+	    }
+	    hashValue.put("billRefresh", "");
+	    hashValue.put("billTotal", "");
+	    billTotal = 0;
+	    billRefresh = "";
+	    if (serialPort.isOpen()) {
+		serialPort.closePort();
+		Logging.log("c.requestKill.serial port is open so closing");
+	    }
+	}
+    } // Runnable
+}// BillAcceptorServlet
