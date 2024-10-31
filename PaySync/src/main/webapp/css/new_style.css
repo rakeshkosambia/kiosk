@@ -1,0 +1,774 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 2px;
+  font-family: 'Poppins',sans-serif;
+}
+
+/******************************************* NEW ****************************************/
+footer {
+  padding: 10px;
+  text-align: left;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  /* width: 30%;
+  background: #eefff0; 
+  border-radius: 20px;
+  border: 1px solid red; */
+}
+.container-table{ 
+  max-width: 1500px;
+  width: 100%;
+  background-color: #fff;
+  padding-left: 25px;          
+  padding-right: 25px;
+  padding-bottom: 25px;  
+  padding-top: 5px;
+  border-radius: 10px 10px 10px 10px; 
+  border: 1px solid #cdcdcd;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);  
+}
+.container{
+  max-width: 1500px;
+  width: 100%;
+  background-color: #fff;
+  /* padding: 10px 15px; */
+  padding-left: 25px;          
+  padding-right: 25px;
+  padding-bottom: 25px;  
+  padding-top: 5px;
+  border-radius: 5px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
+.container .title{
+  font-size: 25px;
+  font-weight: 500;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.container .title::before{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  width: 30px;
+  border-radius: 5px;
+  background: linear-gradient(#658354, #87ab69, #a3c585);
+}
+.custom-center-container {
+
+  /*	
+  background-color: #fff;
+  padding-left: 25px;          
+  padding-right: 25px;
+  padding-bottom: 25px;  
+  padding-top: 25px; 
+  border-radius: 20px;
+  box-shadow: 5 10px 15px rgba(0,0,0,0.15);	
+  */
+	padding-bottom: 2px;  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    box-sizing: border-box;
+    border-radius: 20px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.15); 
+    box-shadow: 0 10px 15px rgba(0, 150, 0, 0.35);
+}
+.custom-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+}
+.custom-left {
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    height: 100%;
+    text-align: left;
+}
+.custom-right {
+    display: flex;
+    justify-content: right;
+    align-items: right;
+    height: 100%;
+    text-align: right;
+}
+.custom-button {
+  height: 60px;
+  width: 150px;
+  border-radius: 20px;
+  padding-left: 15px;          
+  padding-right: 15px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  /*
+  background: linear-gradient(#658354, #87ab69, #a3c585); 
+  background: #006f00;
+  background: linear-gradient(#536b45, #85aa66, #bad3a3);
+  background: #004000;
+  */
+  /* Common color of button with menu => (dark green color) #044904; #003013; #04542c; #008c5b; #30b05a; #3b800e; (lighter green color)  */
+  background-color: #044904;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  white-space: nowrap;     
+  word-wrap: break-word;
+}
+.custom-button:hover {
+  /*
+  background-color: #45a049;
+  background: linear-gradient(#ddead1, #87ab69, #a3c585);
+  background: #05b40a;
+  background: linear-gradient(#9bc179, #779d57, #a3c585);
+  */
+  /* Common color of hover button with menu hover => #e74c3c; (orange) => #658354; (lighter green with husk) */
+  background-color: #658354;
+  background: #658354;
+  
+}
+.message-red-err { 
+  font-size: 16px; 
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;  
+  background-color: red;
+  font-weight: 500;
+  white-space: nowrap;    
+  word-wrap: break-word;
+}
+.message-green-err { 
+  font-size: 16px; 
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;  
+  background-color: #008000;
+  font-weight: 500;
+  white-space: nowrap;    
+  word-wrap: break-word;
+}
+
+.breadcrumb { 
+  font-size: 15px; 
+  font-weight: 400;
+  color: #8000ff;
+}
+
+
+/********************************* NEW *********************************/
+
+
+/******* Normal User Starts *******/
+nav .user-menu {
+    margin: 0px auto 0;
+    position: relative;
+    width: 500px;
+    height: 60px;
+    /*
+    background-color: #34495e;
+    */
+    /* Common color of button with menu => (dark green color) #044904; #34495e; #003013; #04542c; #008c5b; #30b05a; #3b800e; (lighter green color)  */
+    background-color: #044904;
+    border-radius: 20px;
+    font-size: 0;
+}
+nav .user-menu a {
+    line-height: 60px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    font-size: 20px;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+    text-align: center;
+    /*vertical-align: middle;*/
+    color: white;
+    cursor: pointer;
+}
+nav .user-menu .animation {
+    position: absolute;
+    height: 100%;
+    top: 0;
+    z-index: 0;
+    transition: all .5s ease 0s;
+    border-radius: 20px;
+}
+.user-menu a:nth-child(1) {
+    width: 150px;
+}
+.user-menu a:nth-child(2) {
+    width: 150px;
+}
+/*
+.user-menu a:nth-child(3) {
+    width: 150px;
+}
+*/
+.user-menu a:nth-child(3) {
+    width: 200px;
+}
+
+nav .user-menu .start-home,
+nav .user-menu a:nth-child(1):hover~.animation,
+nav .user-menu .active ~ .animation.start-home {
+  width: 150px;
+  left: 0;
+  background-color: #658354;
+}
+
+nav .user-menu .start-monthlybill,
+nav .user-menu a:nth-child(2):hover~.animation,
+nav .user-menu .active ~ .animation.start-monthlybill {
+  width: 150px;
+  left: 150px;
+  background-color: #3498db;
+}
+
+nav .user-menu .start-paymenthistory,
+nav .user-menu a:nth-child(3):hover~.animation,
+nav .user-menu .active ~ .animation.start-paymenthistory {
+  width: 200px;
+  left: 300px;
+  background-color: #9b59b6;
+}
+/******* Normal User Ends *******/
+
+
+/******* Admin User Starts *******/
+nav .admin-menu {
+    margin: 0px auto 0;
+    position: relative;
+    width: 680px;
+    height: 60px;
+    background-color: #34495e;
+    border-radius: 20px;
+    font-size: 0;
+}
+nav .admin-menu a {
+    line-height: 60px;
+    height: 100%;
+    font-size: 20px;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+}
+nav .admin-menu .animation {
+    position: absolute;
+    height: 100%;
+    top: 0;
+    z-index: 0;
+    transition: all .5s ease 0s;
+    border-radius: 20px;
+}
+.admin-menu a:nth-child(1) {
+    width: 175px;
+}
+.admin-menu a:nth-child(2) {
+    width: 175px;
+}
+.admin-menu a:nth-child(3) {
+    width: 175px; 
+}
+.admin-menu a:nth-child(4) {
+    width: 155px;
+}
+nav .admin-menu .admin-members, .admin-menu a:nth-child(1):hover~.animation {
+    width: 175px;
+    left: 0;
+    background-color: #1abc9c;
+}
+nav .admin-menu .admin-register, .admin-menu a:nth-child(2):hover~.animation {
+    width: 175px;
+    left: 175px;
+    background-color: #3498db;
+}
+nav .admin-menu .admin-bill, .admin-menu a:nth-child(3):hover~.animation {
+    width: 175px;
+    left: 350px;
+    background-color: #e74c3c;
+}
+nav .admin-menu .admin-amount, .admin-menu a:nth-child(4):hover~.animation {
+    width: 155px;
+    left: 525px;
+    background-color: #9b59b6;
+}
+/******* Admin User Ends *******/
+
+body{
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background: linear-gradient(#658354, #87ab69, #a3c585);
+}
+/*********** starts plain-table ************/
+.plain-table {
+  overflow-x: auto;
+}
+
+.styled-list {
+  list-style-type: none; /* Remove default bullet points */
+  padding-left: 0; /* Remove default indentation */
+}
+
+.styled-list li:before {
+  content: "\2022"; /* Add bullet point character (•) */
+  color: #ff0000; /* Set color of bullet point */
+  font-size: 1.5em; /* Adjust size of bullet point */
+  margin-right: 0.5em; /* Add spacing between bullet point and text */
+}
+
+.align-top-left {
+  vertical-align: top; /* Align content to the top */
+  text-align: left; /* Align content to the left */
+}
+
+.title-table table {
+  font-size: 26px;
+  font-weight: 500;
+  position: relative;
+  padding: 0px;
+  border-collapse: collapse;
+  width: 100%;
+  margin: auto;
+  text-decoration: block;
+  text-align: left;
+}
+
+.title-table table::before{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  width: 30px;
+  border-radius: 5px;
+  background: linear-gradient(#658354, #87ab69, #a3c585);
+}
+
+.profile-table table {
+  border-collapse: collapse;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 100%;
+  margin: auto;
+  font-size: 14px;
+  text-decoration: block;
+  text-align: right;
+  font-weight: normal;
+  color: #000000;
+  position: relative;
+  white-space: nowrap;    
+  word-wrap: break-word; 
+}
+
+.bluebkg-whitetext {
+   color: #ffffff;
+   background-color: #0000ff;
+}
+
+.redbkg-whitetext {
+   color: #ffffff;
+   background-color: #ff0000;
+}
+/*********** ends plain-table ************/
+
+
+
+/*********** starts receipt-table ************/
+/*
+.receipt-table {
+    font-size: 12px;
+    font-family: 'Times New Roman';
+}
+
+.receipt-table td,
+			   th,
+               tr,
+               table {
+    					border-top: 1px solid black;
+    					border-collapse: collapse;
+				}
+.receipt-table td.description,
+			   th.description {
+				    width: 65px;
+				    max-width: 65px;
+				}
+
+.receipt-table td.quantity,
+				th.quantity {
+				    width: 40px;
+				    max-width: 40px;
+				    word-break: break-all;
+				}
+
+.receipt-table td.price,
+				th.price {
+				    width: 40px;
+				    max-width: 40px;
+				    word-break: break-all;
+				}
+
+.receipt-table .centered {
+				    text-align: center;
+				    align-content: center;
+				}
+
+.receipt-table .ticket {
+			    width: 155px;
+			    max-width: 155px;
+			     
+			}
+
+.receipt-table img {
+			    max-width: 100px;
+			    width: 85px;
+			    padding-left: 20%;
+			}
+
+@media print {
+				.hidden-print,
+				.hidden-print * {
+				display: none !important;
+			  }
+}		
+*/	
+/*********** ends receipt-table ************/
+
+
+
+/*********** starts responsive-table ************/
+.responsive-table {
+  /* Scrollbar will appear only when width and height is fixed, instead overflow-x: auto; overflow-y: auto;  used overflow: auto */
+  overflow: auto;
+  max-width: 1500px;
+  width: 100%;
+  max-height: 350px;
+  height: 100%;
+}
+
+.responsive-table::-webkit-scrollbar {
+  width: 7px; /* Adjust the width to make it smaller */
+  height: 7px; /* Adjust the height to make it smaller */
+}
+.responsive-table::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* Set the background color of the track */
+}
+.responsive-table::-webkit-scrollbar-thumb {
+  background-color: #888; /* Set the color of the thumb */
+}
+.responsive-table::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* Set the color of the thumb on hover */
+}
+
+.responsive-table table {
+  border-collapse: collapse;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 100%;
+  margin: auto;
+  font-size: 16px;
+  text-decoration: none;
+  position: relative;
+  text-align: center;
+}
+
+.responsive-table .divNoBkg {
+  font-size: 1px;
+  border-bottom: 1px solid #a2a2a2;
+  background-color: #ffffff;
+}
+
+.responsive-table th.msgRedBkgWhiteFont {
+  border-bottom: 1px solid #ffffff;
+  /***** background-color:  #ff0000; *****/
+  background-color:  #ffffff;
+  color: #ffffff; 
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  vertical-align: top;
+  text-align: left;
+  white-space: nowrap;
+  word-wrap: break-word;
+  padding-left: 5px;          
+  padding-right: 5px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.responsive-table th.msgRedBkgWhiteFont2Colspan[colspan="2"] {
+  border-bottom: 1px solid #ffffff;
+  /***** background-color: #ff0000; *****/
+  background-color:  #ffffff;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  vertical-align: top;
+  text-align: center;
+  white-space: nowrap;
+  word-wrap: break-word;
+  padding-left: 5px;          
+  padding-right: 5px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.responsive-table th.msgBlueBkgWhiteFont {
+  border-bottom: 1px solid #ffffff;
+  background-color: #0000ff; 
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  vertical-align: top;
+  text-align: left;
+  white-space: nowrap;
+  word-wrap: break-word;
+  padding-left: 5px;          
+  padding-right: 5px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.responsive-table th.msgBlueBkgWhiteFont2Colspan[colspan="2"] {
+  border-bottom: 1px solid #ffffff;
+  background-color: #0000ff; 
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  vertical-align: top;
+  text-align: center;
+  white-space: nowrap;
+  word-wrap: break-word;
+  padding-left: 5px;          
+  padding-right: 5px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.responsive-table th,
+.responsive-table td {
+  text-align: left;
+  border-bottom: 1px solid #a2a2a2;
+  /* Wrap, padding, scrollbar logic */
+  white-space: nowrap;    
+  word-wrap: break-word;   
+  padding-left: 5px;          
+  padding-right: 5px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.responsive-table th {
+  background-color: #c0c0c0;
+  color: #34495e;
+  font-weight: 600;
+  font-size: 18px;
+  text-transform: uppercase;
+  vertical-align: top;
+}
+.responsive-table th:first-child {
+  background-color: #c0c0c0;
+  border-bottom-left-radius: 8px;
+  border-top-left-radius: 8px;
+  color: #34495e;
+  font-weight: 600;
+  font-size: 18px;
+  text-transform: uppercase; 
+  vertical-align: top;
+}
+.responsive-table th:last-child {
+  background-color: #c0c0c0;
+  border-bottom-right-radius: 8px;
+  border-top-right-radius: 8px;
+  color: #34495e;
+  font-weight: 600;
+  font-size: 18px;
+  text-transform: uppercase; 
+  vertical-align: top;
+}
+
+.responsive-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.responsive-table tr:hover {
+  background-color: #f2f2f2;
+}
+/*********** ends responsive-table ************/
+
+div .message-err { 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ff0000;
+  padding: 1px;
+  font-weight: 400;
+}
+
+div .message-total { 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  background-color: #ff0000;
+  padding: 1px;
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.message {
+  border-radius: 5px;	
+  background-color:  #f4f4f4;
+  
+  color: blue;
+  padding:2%;
+}
+
+.content form .user-details{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 10px 0 6px 0;
+  font-size: 18px;
+  border-radius: 5px;
+}
+.content form .user-start-stop{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 10px 0 6px 0;
+}
+form .user-details .input-box{
+  margin-bottom: 5px;
+  width: calc(50% / 2 - 20px);
+}
+form .input-box span.details{
+  display: block;
+  font-weight: 300;
+  margin-bottom: 1px;
+  font-size: 10px;
+}
+.user-details .input-box input{
+  height: 20px;
+  width: 120px;
+  outline: none;
+  font-size: 10px;
+  border-radius: 5px;
+  padding-left: 15px;
+  border: 1px solid #ccc;
+  border-bottom-width: 2px;
+  transition: all 0.3s ease;
+}
+.user-details .login-box input{
+  height: 28px;
+  width: 100%;
+  outline: none;
+  font-size: 10px;
+  border-radius: 5px;
+  padding-left: 5px;
+  border: 1px solid #ccc;
+  border-bottom-width: 2px;
+  transition: all 0.3s ease;
+}
+.user-details .input-box input:focus,
+.user-details .input-box input:valid{
+  border-color: #008000;
+}
+
+/*  remove table tag from here  */
+
+ form .category label .dot{
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  margin-right: 10px;
+  background: #d9d9d9;
+  border: 5px solid transparent;
+  transition: all 0.3s ease;
+}
+
+ form .button{
+   height: 70px;
+   margin: 35px;
+ }
+ form .button input{
+   height: 100%;
+   width: 100%;
+   border-radius: 20px;
+   padding-left: 20px;          
+   padding-right: 20px;
+   border: none;
+   color: #fff;
+   font-size: 18px;
+   font-weight: 500;
+   letter-spacing: 1px;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   background: linear-gradient(#658354, #87ab69, #a3c585); 
+   background: #006f00;
+ } 
+ form .button input:hover{
+  /* transform: scale(0.99); */
+  background: linear-gradient(#ddead1, #87ab69, #a3c585);
+  background: #05b40a;
+  }
+	 @media(max-width: 584px){
+	    .container{
+	        max-width: 100%;
+	    }
+	    form .user-details .input-box{
+	        margin-bottom: 12px;
+	        width: 100%;
+	    }
+	    form .category{
+	        width: 100%;
+	    }
+	    .content form .user-details{
+	        max-height: 300px;
+	        overflow-y: scroll;
+	    }
+	    .content form .user-start-stop{
+	        max-height: 300px;
+	        overflow-y: scroll;
+	    }
+	    .user-details::-webkit-scrollbar{
+	        width: 5px;
+	    }
+	  }
+  @media(max-width: 459px){
+    .container .content .category{
+        flex-direction: column;
+    }
+  }
